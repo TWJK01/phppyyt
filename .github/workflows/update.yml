@@ -34,6 +34,6 @@ jobs:
 
         git add live_urls.txt
         git commit -m "Update live URLs" || echo "No changes to commit"
-
-        # 使用 GITHUB_TOKEN 推送，避免權限問題
-        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+        
+        # 強制推送，覆蓋遠端檔案
+        git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
