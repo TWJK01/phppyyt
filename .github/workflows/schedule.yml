@@ -2,15 +2,15 @@ name: YouTube Live Scraper
 
 on:
   schedule:
-    - cron: '0 */2 * * *' # 每兩小時執行一次
-  workflow_dispatch: # 手動觸發也可以
+    - cron: '0 */2 * * *'  # 每兩小時執行一次
+  workflow_dispatch:        # 支援手動觸發
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Set up PHP
@@ -19,12 +19,19 @@ jobs:
           php-version: '8.2'
 
       - name: Run PHP script
-        run: php your_script.php
+        run: php fetch_live.php
 
-      - name: Commit results
+      - name: Commit and push if live_streams.txt changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add live_streams.txt
-          git commit -m "Update live streams" || echo "No changes to commit"
-          git push
+
+          if [ -f live_streams.txt ]; then
+            git add live_streams.txt
+            git diff --cached --quiet || (
+              git commit -m "Update live streams"
+              git push
+            )
+          else
+            echo "No live_streams.txt found. Skipping commit."
+          fi
