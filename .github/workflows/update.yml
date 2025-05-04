@@ -21,19 +21,16 @@ jobs:
     - name: Run PHP script
       run: php check_live.php
 
-    - name: Commit and push changes
+    - name: Commit and force-push live URLs
+      env:
+        REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
-        
-        # 如果有未提交的變更，先進行提交或暫存
-        git diff --exit-code || git add . && git commit -m "Auto commit of live URL updates"
-        
-        # 拉取遠端最新並 rebase 本地變更
-        git pull --rebase origin main
 
+        # 只提交最新的 live_urls.txt（內容為正在直播的網址）
         git add live_urls.txt
-        git commit -m "Update live URLs" || echo "No changes to commit"
-        
-        # 強制推送，覆蓋遠端檔案
-        git push --force https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+        git commit -m "Update live URLs" || echo "No live URLs to commit"
+
+        # 直接強制推送，覆蓋遠端 main 分支
+        git push --force https://x-access-token:${REPO_TOKEN}@github.com/${{ github.repository }}.git main
