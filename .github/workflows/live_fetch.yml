@@ -2,8 +2,11 @@ name: Fetch Live YouTube Streams
 
 on:
   schedule:
-    - cron: '0 * * * *'  # 每小時執行一次（UTC）
-  workflow_dispatch:      # 允許手動觸發
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+permissions:  # ✅ 這段是關鍵
+  contents: write  # 允許寫入 repository（推送 commit）
 
 jobs:
   run-php:
@@ -12,6 +15,8 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}  # ✅ 使用自動產生的 token
 
     - name: Set up PHP
       uses: shivammathur/setup-php@v2
