@@ -2,11 +2,11 @@ name: Fetch Live YouTube Streams
 
 on:
   schedule:
-    - cron: '0 * * * *'
-  workflow_dispatch:
+    - cron: '0 * * * *'   # 每小時執行一次 (UTC)
+  workflow_dispatch:       # 支援手動觸發
 
-permissions:  # ✅ 這段是關鍵
-  contents: write  # 允許寫入 repository（推送 commit）
+permissions:
+  contents: write          # ✅ 允許 Actions 推送更改
 
 jobs:
   run-php:
@@ -16,7 +16,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}  # ✅ 使用自動產生的 token
+        token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Set up PHP
       uses: shivammathur/setup-php@v2
@@ -30,6 +30,7 @@ jobs:
       run: |
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
+        git pull --rebase origin main
         git add live_links.txt
         git commit -m "Update live_links.txt - $(date -u '+%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
-        git push
+        git push origin main
