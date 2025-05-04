@@ -17,14 +17,20 @@ foreach ($channels as $name => $url) {
     if (preg_match_all('/"url":"(\/watch\?v=[^"]+)"/', $html, $matches)) {
         foreach ($matches[1] as $relativeUrl) {
             $fullUrl = "https://www.youtube.com" . stripslashes($relativeUrl);
+
+            // 檢查是否有 LIVE NOW 的標誌
             if (strpos($html, 'LIVE NOW') !== false || strpos($html, '直播') !== false) {
-                $liveUrls[] = "$name: $fullUrl";
+                $liveUrls[] = "$name: $fullUrl";  // 只將 LIVE 的影片網址加到清單
             }
         }
     }
 }
 
-// 輸出到 txt 檔案
-file_put_contents("live_urls.txt", implode("\n", $liveUrls));
+// 如果有找到 LIVE 網址，將其寫入文字檔
+if (count($liveUrls) > 0) {
+    file_put_contents("live_urls.txt", implode("\n", $liveUrls));
+} else {
+    echo "目前沒有正在直播的影片。\n";
+}
 
 echo "Done. Found " . count($liveUrls) . " live(s).\n";
