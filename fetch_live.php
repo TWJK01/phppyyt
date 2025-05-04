@@ -25,7 +25,8 @@ foreach ($channels as $name => $url) {
     $html = fetchHtml($url);
     if (!$html) continue;
 
-    // 嘗試從HTML原始碼中找出 "isLive":true 的影片
+    // 嘗試從HTML中找出 "isLive": true 的影片
+    // 這段用來匹配 `isLive` 標籤並抓取視頻 ID
     if (preg_match('/"url":"(\/watch\?v=[^"]+)".*?"isLive":true/', $html, $matches)) {
         $videoPath = stripslashes($matches[1]);
         $fullUrl = 'https://www.youtube.com' . $videoPath;
