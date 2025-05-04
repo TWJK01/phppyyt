@@ -1,0 +1,30 @@
+name: Update Live URLs
+
+on:
+  schedule:
+    - cron: '0 */2 * * *'  # 每兩小時
+  workflow_dispatch:       # 也允許手動觸發
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.1'
+
+    - name: Run PHP script
+      run: php check_live.php
+
+    - name: Commit and push changes
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git add live_urls.txt
+        git commit -m "Update live URLs" || echo "No changes"
+        git push
