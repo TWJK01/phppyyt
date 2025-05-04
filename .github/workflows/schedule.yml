@@ -29,8 +29,9 @@ jobs:
           if [ -f live_streams.txt ]; then
             git add live_streams.txt
             git diff --cached --quiet || (
+              git pull --rebase origin main
               git commit -m "Update live streams"
-              git push
+              git push origin main
             )
           else
             echo "No live_streams.txt found. Skipping commit."
