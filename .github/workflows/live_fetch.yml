@@ -6,7 +6,7 @@ on:
   workflow_dispatch:       # 支援手動觸發
 
 permissions:
-  contents: write          # ✅ 允許 Actions 推送更改
+  contents: write          # 允許 Actions 寫入推送
 
 jobs:
   run-php:
@@ -30,7 +30,9 @@ jobs:
       run: |
         git config user.name "github-actions"
         git config user.email "github-actions@github.com"
-        git pull --rebase origin main
+        git stash                       # 暫存 live_links.txt 變更
+        git pull --rebase origin main  # 拉取遠端最新狀態
+        git stash pop                  # 還原變更
         git add live_links.txt
         git commit -m "Update live_links.txt - $(date -u '+%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
         git push origin main
