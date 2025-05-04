@@ -2,8 +2,8 @@ name: Update Live URLs
 
 on:
   schedule:
-    - cron: '0 */2 * * *'  # 每兩小時
-  workflow_dispatch:       # 也允許手動觸發
+    - cron: '0 */2 * * *'  # 每兩小時執行一次
+  workflow_dispatch:       # 支援手動觸發
 
 jobs:
   build:
@@ -25,6 +25,9 @@ jobs:
       run: |
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
+        # 拉取遠端最新並 rebase 本地變更
+        git pull --rebase origin main
         git add live_urls.txt
-        git commit -m "Update live URLs" || echo "No changes"
-        git push
+        git commit -m "Update live URLs" || echo "No changes to commit"
+        # 使用 GITHUB_TOKEN 推送，避免權限問題
+        git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
