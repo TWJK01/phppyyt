@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
+    - name: Checkout repository
       uses: actions/checkout@v3
 
     - name: Set up PHP
@@ -25,9 +25,15 @@ jobs:
       run: |
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
+        
+        # 如果有未提交的變更，先進行提交或暫存
+        git diff --exit-code || git add . && git commit -m "Auto commit of live URL updates"
+        
         # 拉取遠端最新並 rebase 本地變更
         git pull --rebase origin main
+
         git add live_urls.txt
         git commit -m "Update live URLs" || echo "No changes to commit"
+
         # 使用 GITHUB_TOKEN 推送，避免權限問題
         git push https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
