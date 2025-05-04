@@ -8,20 +8,34 @@ $channels = [
 
 $results = [];
 
+function fetchHtml($url) {
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        CURLOPT_SSL_VERIFYPEER => false,
+    ]);
+    $html = curl_exec($ch);
+    curl_close($ch);
+    return $html;
+}
+
 foreach ($channels as $name => $url) {
-    $html = @file_get_contents($url);
+    $html = fetchHtml($url);
     if (!$html) continue;
 
-    // 找出直播影片的網址（簡單匹配 LIVE）
-    if (preg_match('/"url":"(\/watch\?v=[^"]+)",.*?"isLive":true/', $html, $matches)) {
+    // 嘗試從HTML原始碼中找出 "isLive":true 的影片
+    if (preg_match('/"url":"(\/watch\?v=[^"]+)".*?"isLive":true/', $html, $matches)) {
         $videoPath = stripslashes($matches[1]);
         $fullUrl = 'https://www.youtube.com' . $videoPath;
         $results[] = "$name,$fullUrl";
     }
 }
 
-// 寫入結果至文字檔
-if (!empty($results)) {
-    file_put_contents('live_streams.txt', implode(PHP_EOL, $results));
+// 若有直播，寫入 live_streams.txt，否則寫入提示訊息
+if (empty($results)) {
+    file_put_contents('live_streams.txt', "目前無直播\n");
+} else {
+    file_put_contents('live_streams.txt', implode(PHP_EOL, $results) . "\n");
 }
-?>
